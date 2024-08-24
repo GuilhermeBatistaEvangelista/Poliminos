@@ -55,7 +55,7 @@ class Choose(State):
 		self.selected_alg=-1
 		if entrymode!=0:
 			self.selected_alg=0
-		self.selected_size=6
+		self.selected_size=0
 		#treino automatico
 		self.combinations = [list(i) for i in itertools.product([False,True],repeat=5)]
 		self.training_step=0

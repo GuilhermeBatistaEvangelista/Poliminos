@@ -57,11 +57,12 @@ class Train_Q(State):
 		if self.game.playGame==False:
 			self.state_out()
 			return
-		if actions["Scape"]:# se scape fro pressionado vai para o menu de jogo
+		if actions["Scape"]:# se scape for pressionado vai para o menu de jogo
 			new_state = Menu_Game(self.game)
 			new_state.state_in()	#adiciona o estado ao topo da pilha
 			self.game.reset_actions()
 		
+		self.reload_graphs()
 		
 		self.Q1.update()
 		t1=self.poliminos1.update(deltatime, self.Q1.actions)
@@ -147,6 +148,7 @@ class Train_Q(State):
 		if ((self.score[0]+self.score[1])>100):
 			
 			matplotlib.pyplot.figure(figsize=(12,9))
+			matplotlib.pyplot.rcParams.update({'font.size': 26})
 			#		grafico de pontuação
 			data=np.array(self.result_score)
 			matplotlib.pyplot.plot(data)
@@ -200,6 +202,47 @@ class Train_Q(State):
 			matplotlib.pyplot.xticks([])
 			#matplotlib.pyplot.show()
 			matplotlib.pyplot.savefig("results/"+self.name+"_"+str(self.score[0]+self.score[1])+"_actions__𝛾"+str(self.Q1.discount_factor)+"_α"+str(self.Q1.learning_rate)+".png", format="png")
-			np.save("results/"+self.name+"_"+str(self.score[0]+self.score[1])+"_action", data)
+			np.save("results/"+self.name+"_"+str(self.score[0]+self.score[1])+"_action", self.actions_list)
 			matplotlib.pyplot.clf()
+			
 			np.savez("algorithms/"+self.name+"_"+str(self.score[0]+self.score[1]), q_values)
+			
+			
+	def reload_graphs(self):
+		self.game.playGame=False
+		
+		matplotlib.pyplot.figure(figsize=(12,9))
+		matplotlib.pyplot.rcParams.update({'font.size': 26})
+
+		#		grafico de pontuação
+		data=np.load("results/"+self.name+"_250_score.npy")
+		matplotlib.pyplot.plot(data)
+		matplotlib.pyplot.xlabel("Jogos")
+		matplotlib.pyplot.ylabel("Pontuação")
+		#matplotlib.pyplot.show()
+		matplotlib.pyplot.savefig("results/"+self.name+"_250_score__𝛾"+str(self.Q1.discount_factor)+"_α"+str(self.Q1.learning_rate)+".png", format="png")
+		matplotlib.pyplot.clf()
+		#		grafico de linhas completas
+		data=np.load("results/"+self.name+"_250_lines.npy")
+		matplotlib.pyplot.plot(data)
+		matplotlib.pyplot.xlabel("Jogos")
+		matplotlib.pyplot.ylabel("linhas")
+		#matplotlib.pyplot.show()
+		matplotlib.pyplot.savefig("results/"+self.name+"_250_lines__𝛾"+str(self.Q1.discount_factor)+"_α"+str(self.Q1.learning_rate)+".png", format="png")
+		matplotlib.pyplot.clf()
+		#		grafico de linhas de ataque enviada
+		data=np.load("results/"+self.name+"_250_attack.npy")
+		matplotlib.pyplot.plot(data)
+		matplotlib.pyplot.xlabel("Jogos")
+		matplotlib.pyplot.ylabel("linhas de ataque")
+		#matplotlib.pyplot.show()
+		matplotlib.pyplot.savefig("results/"+self.name+"_250_attack__𝛾"+str(self.Q1.discount_factor)+"_α"+str(self.Q1.learning_rate)+".png", format="png")
+		matplotlib.pyplot.clf()
+		#		grafico de tempo de jogo
+		data=np.load("results/"+self.name+"_250_time.npy")
+		matplotlib.pyplot.plot(data)
+		matplotlib.pyplot.xlabel("Jogos")
+		matplotlib.pyplot.ylabel("Tempo(s)")
+		#matplotlib.pyplot.show()
+		matplotlib.pyplot.savefig("results/"+self.name+"_250_time__𝛾"+str(self.Q1.discount_factor)+"_α"+str(self.Q1.learning_rate)+".png", format="png")
+		matplotlib.pyplot.clf()

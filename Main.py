@@ -25,6 +25,8 @@ class Game():
 		self.load_state()
 		self.mouse=False
 		self.mouse_pos=(0,0)
+		self.finger=False
+		self.drag_tolerance=self.canvas_w/10#tolerancia de 10% no movimento de arrastar
 		self.font = pygame.font.Font('arial.ttf', 150)
 		self.font20 = pygame.font.Font('arial.ttf', 20)
 		self.font24 = pygame.font.Font('arial.ttf', 24)
@@ -42,10 +44,12 @@ class Game():
 		self.ptime = now
 
 	def eventos(self):###########			Eventos			###########
-		self.mouse=False#reseta o click do mouse
+		self.mouse = False#reseta o click do mouse
+		
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
 				self.runGame, self.playGame = False, False
+			
 			if event.type == pygame.MOUSEBUTTONDOWN:#registra o clique e sua posição
 				if event.button==1:#se for o botão esquerdo
 					self.mouse=True
@@ -53,6 +57,31 @@ class Game():
 					self.mouse_pos=(int(pos[0]*(self.canvas_w/self.window_w)),int(pos[1]*(self.canvas_h/self.window_h)))
 				if event.button==3:#se for o botão direito
 					self.actions["Scape"] = True
+				if event.touch and self.playGame:
+					self.finger=True
+			if self.finger:
+				if event.type == pygame.MOUSEBUTTONUP:#registra o fim do clique e sua posição se estiver em jogo
+					self.finger=False
+					pos = pygame.mouse.get_pos()#pega posição do mouse
+					mouse_end=(int(pos[0]*(self.canvas_w/self.window_w)),int(pos[1]*(self.canvas_h/self.window_h)))
+					mouse_motion=[mouse_end[0]-self.mouse_pos[0], mouse_end[1]-self.mouse_pos[1]] #diferenca do movimento
+					if(abs(mouse_motion[1])>self.drag_tolerance):#se o movimento vertical for maior que a tolerancia
+						if(mouse_motion[0]>0):self.actions["Hold"] = True
+						else:self.actions["Hard_Drop"] = True
+					else:#se for somente um toque = rotacionar
+						if mouse_end[0]>(self.canvas_w/2):self.actions["Rotate_Right"] = True
+						else:self.actions["Rotate_Left"] = True
+				if event.type == pygame.MOUSEMOTION:#movimento do mouse em jogo
+					pos = pygame.mouse.get_pos()#pega posição do mouse
+					touch_now=(int(pos[0]*(self.canvas_w/self.window_w)),int(pos[1]*(self.canvas_h/self.window_h)))
+					mouse_motion=[touch_now[0]-self.mouse_pos[0], touch_now[1]-self.mouse_pos[1]] #diferenca do movimento
+					if(abs(mouse_motion[0])>self.drag_tolerance):#se o movimento horizontal for maior que a tolerancia
+							if(mouse_motion[0]>0):self.actions["Right"] = True
+							else:self.actions["Left"] = True
+					else:
+						self.actions["Right"] = False
+						self.actions["Left"] = False
+			
 			if event.type == pygame.KEYDOWN:#		TECLA PRESSIONADA
 				self.last_key=event.key#guarda a ultima tecla pressionada
 				#print(pygame.key.name(event.key))
