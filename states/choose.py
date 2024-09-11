@@ -64,7 +64,7 @@ class Choose(State):
 	def update(self, deltatime, actions):
 		#Automatic training
 		if self.mode==3 and self.training_step>=0:
-			self.selected_alg=0
+			self.selected_alg=1
 			self.position=4
 			self.positionx=1
 			if self.training_step >= len(self.combinations):
@@ -159,7 +159,8 @@ class Choose(State):
 							else:
 								self.game.playGame=True
 								if self.mode==1:#	VS mode
-									print(self.pieces)
+									new_state = Vs(self.game, self.selected_alg+1, self.pieces, self.size[self.selected_size])
+									new_state.state_in()
 								if self.mode==2:#	Co-op mode
 									print(self.pieces)
 								if self.mode==3:#	Train mode

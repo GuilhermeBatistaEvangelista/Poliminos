@@ -11,8 +11,12 @@ class Solo(State):
 		self.field_size_x = selected_size
 		self.pieces = pieces
 		self.poliminos = Poliminos(self.game, self.block_size, self.field_size_x, self.pieces, self.game.canvas_w/2)
+		self.back_button = pygame.Rect((0,0), (40,40))
+		self.back_button.center=(20,20)
 	
 	def update(self, deltatime, actions):
+		if self.game.mouse and self.back_button.collidepoint(self.game.mouse_pos):#se clicar no botão de retorno
+			actions["Scape"]=True
 		if self.game.playGame==False:
 			self.state_out()
 			self.state_out()
@@ -29,3 +33,7 @@ class Solo(State):
 	def draw(self, canvas):
 		canvas.fill(pygame.Color("antiquewhite3"))
 		self.poliminos.draw(canvas)
+		
+		#Botão de retorno
+		pygame.draw.rect(canvas, pygame.Color("black"), self.back_button, 2, 2)
+		self.game.text(canvas, "<", 40, pygame.Color("black"), 20, 20)

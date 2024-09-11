@@ -62,7 +62,7 @@ class Train_Q(State):
 			new_state.state_in()	#adiciona o estado ao topo da pilha
 			self.game.reset_actions()
 		
-		self.reload_graphs()
+		#self.reload_graphs()
 		
 		self.Q1.update()
 		t1=self.poliminos1.update(deltatime, self.Q1.actions)
@@ -187,10 +187,11 @@ class Train_Q(State):
 			matplotlib.pyplot.clf()
 			#		grafico de ações tomadas
 			self.actions_list=np.array(self.actions_list)
+			cycle = matplotlib.pyplot.rcParams['axes.prop_cycle'].by_key()['color']
 			if(len(self.actions_list[0])==3):#labels
-				matplotlib.pyplot.plot([], [], color ='b', label ='Minimizar Buracos')
-				matplotlib.pyplot.plot([], [], color ='g', label ='Minimizar Altura')
-				matplotlib.pyplot.plot([], [], color ='r', label ='Maximizar Linhas')
+				matplotlib.pyplot.plot([], [], color = cycle[0], label ='Minimizar Buracos')
+				matplotlib.pyplot.plot([], [], color = cycle[1], label ='Minimizar Altura')
+				matplotlib.pyplot.plot([], [], color = cycle[2], label ='Maximizar Linhas')
 			matplotlib.pyplot.legend(loc="lower left")
 			x=np.arange(0,len(self.actions_list))
 			y= np.vstack((self.actions_list[:, 0], self.actions_list[:, 1]))

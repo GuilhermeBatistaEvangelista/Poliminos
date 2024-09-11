@@ -147,7 +147,7 @@ class Game():
 		self.window.blit(pygame.transform.scale(self.canvas,(self.window_w,self.window_h)),(0,0))
 		pygame.display.flip()
 	
-	def text(self, canvas, text, size, color,x,y):
+	def text(self, canvas, text, size, color, x, y):
 		#self.font = pygame.font.Font('arial.ttf', size)
 		if size==20:
 			text_canvas = self.font20.render(text, True, color) # gera o texto

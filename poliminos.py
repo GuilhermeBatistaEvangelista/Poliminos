@@ -19,8 +19,9 @@ class Poliminos():
 		self.field_size_x = field_size_x
 		#print(field_size_x)
 		self.center=center # o centro horizontal do jogo
-		self.grid_left=center+(self.block_size*-field_size_x/2)#posição X do inicio da grid
-		self.grid_y=self.block_size*(3+19)#posição Y do inicio da grid
+		self.game_top = self.block_size*(round((self.field_size_x-8)/2))*(center!=self.game.canvas_w/2) # o top do jogo
+		self.grid_left = center+(self.block_size*-field_size_x/2) #posição X do inicio da grid
+		self.grid_y = self.block_size*(3+19)+self.game_top #posição Y do inicio da grid
 		self.matrix = [[0 for y in range(40)] for x in range(field_size_x)]# field_size_x*20 são o campo jogavel e field_size_x*20 são zona de buffer
 		self.bag=[]
 		
@@ -142,42 +143,43 @@ class Poliminos():
 		
 
 	def draw(self, canvas):
-		rect = pygame.Rect(self.grid_left-self.block_size*7, 1.5*self.block_size, self.block_size*(self.field_size_x+14), self.block_size*23)
+		game_top=self.game_top
+		rect = pygame.Rect(self.grid_left-self.block_size*7, game_top+1.5*self.block_size, self.block_size*(self.field_size_x+14), self.block_size*23)
 		pygame.draw.rect(canvas, pygame.Color("gold3"), rect, 0, 15)
 		pygame.draw.rect(canvas, pygame.Color("gold"), rect, 3, 15)
 		#desenhar score
-		self.game.text(canvas,self.words[0], 24, pygame.Color("black"), self.grid_left+self.block_size*self.field_size_x*0.15, self.block_size*2.5)
-		self.game.text(canvas,str(int(self.score)), 24, pygame.Color("black"), self.grid_left+self.block_size*self.field_size_x*0.5, 2.5*self.block_size)
+		self.game.text(canvas,self.words[0], 24, pygame.Color("black"), self.grid_left+self.block_size*self.field_size_x*0.15, game_top+self.block_size*2.5)
+		self.game.text(canvas,str(int(self.score)), 24, pygame.Color("black"), self.grid_left+self.block_size*self.field_size_x*0.5, game_top+2.5*self.block_size)
 		#desenha Hold
-		self.game.text(canvas,self.words[1], 24, pygame.Color("black"), self.grid_left-self.block_size*4, self.block_size*5.5)
-		rect = pygame.Rect(self.grid_left-self.block_size*6.5, 6*self.block_size, self.block_size*6, self.block_size*5)
+		self.game.text(canvas,self.words[1], 24, pygame.Color("black"), self.grid_left-self.block_size*4, game_top+self.block_size*5.5)
+		rect = pygame.Rect(self.grid_left-self.block_size*6.5, game_top+6*self.block_size, self.block_size*6, self.block_size*5)
 		pygame.draw.rect(canvas, pygame.Color("black"), rect, 0, 10)
 		pygame.draw.rect(canvas, pygame.Color("gold"), rect, 3, 10)
 		if self.hold is not None:
 			self.hold.draw(canvas)
 		for y in range(3):#hold grid
 			for x in range(5):
-				rect = pygame.Rect(self.grid_left-self.block_size*6+x*self.block_size, 9*self.block_size-(y*self.block_size), self.block_size, self.block_size)
+				rect = pygame.Rect(self.grid_left-self.block_size*6+x*self.block_size, game_top+9*self.block_size-(y*self.block_size), self.block_size, self.block_size)
 				pygame.draw.rect(canvas, pygame.Color("black"), rect, 1)
 				#desenha Next
-		self.game.text(canvas,self.words[2], 24, pygame.Color("black"), self.grid_left+self.block_size*(self.field_size_x+2.5), self.block_size*5.5)
-		rect = pygame.Rect(self.grid_left+self.block_size*(self.field_size_x+0.5), 6*self.block_size, self.block_size*6, self.block_size*5)
+		self.game.text(canvas,self.words[2], 24, pygame.Color("black"), self.grid_left+self.block_size*(self.field_size_x+2.5), game_top+self.block_size*5.5)
+		rect = pygame.Rect(self.grid_left+self.block_size*(self.field_size_x+0.5), game_top+6*self.block_size, self.block_size*6, self.block_size*5)
 		pygame.draw.rect(canvas, pygame.Color("black"), rect, 0, 10)
 		pygame.draw.rect(canvas, pygame.Color("gold"), rect, 3, 10)
 		self.next.draw(canvas)
 		for y in range(3):
 			for x in range(5):
-				rect = pygame.Rect(self.grid_left+self.block_size*(self.field_size_x+1)+x*self.block_size, 9*self.block_size-(y*self.block_size), self.block_size, self.block_size)
+				rect = pygame.Rect(self.grid_left+self.block_size*(self.field_size_x+1)+x*self.block_size, game_top+9*self.block_size-(y*self.block_size), self.block_size, self.block_size)
 				pygame.draw.rect(canvas, pygame.Color("black"), rect, 1)
-		self.game.text(canvas,"Garbage  "+str(self.garbage), 24, pygame.Color("black"), self.grid_left+self.block_size*(self.field_size_x+3.5), self.block_size*11.5)
+		self.game.text(canvas,"Garbage  "+str(self.garbage), 24, pygame.Color("black"), self.grid_left+self.block_size*(self.field_size_x+3.5), game_top+self.block_size*11.5)
 		#desenhar level
-		self.game.text(canvas,self.words[3], 24, pygame.Color("black"), self.grid_left+self.block_size*self.field_size_x*0.15, self.block_size*23.5)
-		self.game.text(canvas,str(int(self.level)), 24, pygame.Color("black"), self.grid_left+self.block_size*self.field_size_x*0.3, 23.5*self.block_size)
+		self.game.text(canvas,self.words[3], 24, pygame.Color("black"), self.grid_left+self.block_size*self.field_size_x*0.15, game_top+self.block_size*23.5)
+		self.game.text(canvas,str(int(self.level)), 24, pygame.Color("black"), self.grid_left+self.block_size*self.field_size_x*0.3, game_top+23.5*self.block_size)
 		#desenhar lines clears
-		self.game.text(canvas,self.words[4], 24, pygame.Color("black"), self.grid_left+self.block_size*self.field_size_x*0.7, self.block_size*23.5)
-		self.game.text(canvas,str(int(self.total_lines_cleared)), 24, pygame.Color("black"), self.grid_left+self.block_size*self.field_size_x*0.9, 23.5*self.block_size)
+		self.game.text(canvas,self.words[4], 24, pygame.Color("black"), self.grid_left+self.block_size*self.field_size_x*0.7, game_top+self.block_size*23.5)
+		self.game.text(canvas,str(int(self.total_lines_cleared)), 24, pygame.Color("black"), self.grid_left+self.block_size*self.field_size_x*0.9, game_top+23.5*self.block_size)
 		#desenha o fundo da matriz
-		rect = pygame.Rect(self.grid_left, 3*self.block_size, self.block_size*self.field_size_x, self.block_size*20)
+		rect = pygame.Rect(self.grid_left, game_top+3*self.block_size, self.block_size*self.field_size_x, self.block_size*20)
 		pygame.draw.rect(canvas, pygame.Color("black"), rect, 0)
 		#desenha os blocos da matriz
 		for x in range(self.field_size_x):
@@ -200,7 +202,7 @@ class Poliminos():
 		pygame.draw.rect(canvas, pygame.Color("gray"), rect, 2, 3)
 		#desenha os movimentos realizados
 		for x in range(len(self.move_rec)):
-			self.game.text(canvas,self.move_rec[x], 16, pygame.Color("gray"+str(round(x*7))), self.grid_left-self.block_size*3, self.block_size*(11.5+x))
+			self.game.text(canvas,self.move_rec[x], 16, pygame.Color("gray"+str(round(x*7))), self.grid_left-self.block_size*3, game_top+self.block_size*(11.5+x))
 	
 
 	def next_piece(self):
