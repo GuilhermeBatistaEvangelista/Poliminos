@@ -26,31 +26,13 @@ class Q_learning():
 					self.piece_list.append(polimino)
 			i+=1
 		
-		#				Q(N x Coluna esta acima de 10, piece, 3 actions)
-		#							 											3 ações(Minimizar  buracos, Minimizar altura, Maximizar linhas)
-		if self.poliminos.field_size_x==8:
-			self.q_values = np.zeros((2,2,2,2,  2,2,2,2, len(self.piece_list), 3))
-		elif self.poliminos.field_size_x==10:
-			self.q_values = np.zeros((2,2,2,2,  2,2,2,2,  2,2, len(self.piece_list), 3))
-		elif self.poliminos.field_size_x==12:
-			self.q_values = np.zeros((2,2,2,2,  2,2,2,2,  2,2,2,2, len(self.piece_list), 3))
-		elif self.poliminos.field_size_x==14:
-			self.q_values = np.zeros((2,2,2,2,  2,2,2,2,  2,2,2,2,  2,2, len(self.piece_list), 3))
-		elif self.poliminos.field_size_x==16:
-			self.q_values = np.zeros((2,2,2,2,  2,2,2,2,  2,2,2,2,  2,2,2,2, len(self.piece_list), 3))
-		elif self.poliminos.field_size_x==18:
-			self.q_values = np.zeros((2,2,2,2,  2,2,2,2,  2,2,2,2,  2,2,2,2,  2,2, len(self.piece_list), 3))
-		elif self.poliminos.field_size_x==20:
-			self.q_values = np.zeros((2,2,2,2,  2,2,2,2,  2,2,2,2,  2,2,2,2,  2,2,2,2, len(self.piece_list), 3))
-		
-		self.column=[]
-		for i in range(self.poliminos.field_size_x):
-			self.column.append(0)
-		
+		#				media da altura das colunas, N peças,  
+		#							 						4 ações(Minimizar  buracos, Minimizar altura, Maximizar linhas)
+		self.q_values = np.zeros((20, len(self.piece_list), 4))
 		#parametros de treinamento
 		self.epsilon = 0.0 #the percentage of time when we should take the best action (instead of a random action)
-		self.discount_factor = 0.9 #discount factor for future rewards
-		self.learning_rate = 0.1 #the rate at which the AI agent should learn
+		self.discount_factor = 0.9 #	𝛾(gamma)	discount factor for future rewards
+		self.learning_rate = 0.1 #		α(alpha)	the rate at which the AI agent should learn
 		
 		self.g=Greedy(self.poliminos)#greedy search
 		
@@ -60,7 +42,7 @@ class Q_learning():
 		self.current_piece = self.piece_list.index(self.poliminos.piece.shape)
 		self.position=0#armazena a posição da peça
 		self.old_action =-1
-		self.all_actions = [ 0, 0, 0]#	lista de ações tomadas
+		self.all_actions = [ 0, 0, 0, 0]#	lista de ações tomadas
 		self.current_action =self.get_next_action()
 		self.training=True
 
@@ -73,29 +55,15 @@ class Q_learning():
 			self.current_action = self.get_next_action()
 		if self.execute_action():
 			self.old_action = self.current_action
-			self.current_action=-1	
+			self.current_action=-1
 		
 
 	def get_next_action(self):
 		if np.random.random() < self.epsilon:
 			#return np.argmax(self.q_values[self.heights[0], self.heights[1], self.heights[2], self.heights[3], self.heights[4], self.heights[5], self.heights[6], self.heights[7], self.heights[8], self.heights[9], self.current_piece])
-			if self.poliminos.field_size_x==8:
-				action = np.argmax(self.q_values[self.column[0],self.column[1],self.column[2],self.column[3],  self.column[4],self.column[5],self.column[6],self.column[7], self.current_piece])
-			elif self.poliminos.field_size_x==10:
-				action = np.argmax(self.q_values[self.column[0],self.column[1],self.column[2],self.column[3],  self.column[4],self.column[5],self.column[6],self.column[7],  self.column[8],self.column[9], self.current_piece])
-			elif self.poliminos.field_size_x==12:
-				action = np.argmax(self.q_values[self.column[0],self.column[1],self.column[2],self.column[3],  self.column[4],self.column[5],self.column[6],self.column[7],  self.column[8],self.column[9],self.column[10],self.column[11], self.current_piece])
-			elif self.poliminos.field_size_x==14:
-				action = np.argmax(self.q_values[self.column[0],self.column[1],self.column[2],self.column[3],  self.column[4],self.column[5],self.column[6],self.column[7],  self.column[8],self.column[9],self.column[10],self.column[11],  self.column[12],self.column[13], self.current_piece])
-			elif self.poliminos.field_size_x==16:
-				action = np.argmax(self.q_values[self.column[0],self.column[1],self.column[2],self.column[3],  self.column[4],self.column[5],self.column[6],self.column[7],  self.column[8],self.column[9],self.column[10],self.column[11],  self.column[12],self.column[13],self.column[14],self.column[15], self.current_piece])
-			elif self.poliminos.field_size_x==18:
-				action = np.argmax(self.q_values[self.column[0],self.column[1],self.column[2],self.column[3],  self.column[4],self.column[5],self.column[6],self.column[7],  self.column[8],self.column[9],self.column[10],self.column[11],  self.column[12],self.column[13],self.column[14],self.column[15],  self.column[16],self.column[17], self.current_piece])
-			elif self.poliminos.field_size_x==20:
-				action = np.argmax(self.q_values[self.column[0],self.column[1],self.column[2],self.column[3],  self.column[4],self.column[5],self.column[6],self.column[7],  self.column[8],self.column[9],self.column[10],self.column[11],  self.column[12],self.column[13],self.column[14],self.column[15],  self.column[16],self.column[17],self.column[18],self.column[19], self.current_piece])
-			#action = np.argmax(self.q_values[self.height_mean, self.current_piece])
+			action = np.argmax(self.q_values[self.height_mean, self.current_piece])
 		else: #choose a random action
-			action = np.random.randint(3)
+			action = np.random.randint(4)
 		
 		#print("got_action")
 		self.get_pos(action)
@@ -104,31 +72,21 @@ class Q_learning():
 
 	def get_pos(self, action):
 		lista=self.g.update()
-		#	pos, num_lines, awarded_lines,   score, attack,			holes, 		soma das alturas, alturas
-		#	0,			1,				2, 		3, 		4,				5,						6,		7
+		#	pos, num_lines, awarded_lines,   score, attack,	holes, 	soma das alturas, alturas,	bumpiness, 	sum of well deep, 	TAI, AAINT, TNPB, stackAndAttack
+		#	0,			1,				2, 		3, 		4,		5,					6,		7, 			8,					9,	10,		11,	12,		13
 		#	positon = [	piece.pos[0], piece.pos[1], piece.facing, self.hold	]
 
 		#print(lista)
 		nplist=np.array(lista, dtype=list)
 		#print(nplist)
-		if action==0:#Minimizar  buracos
-			#print("holes")#holes
-			#print(nplist[:,5])#holes list
-			#print(nplist[:,5].argmin())#Minimizar  buracos
-			self.position=lista[nplist[:,5].argmin()][0]
-		elif action==1:#Minimizar altura
-			#print("heigths")#altura
-			#print(nplist[:,6])#altura list
-			#print(nplist[:,6].argmin())#Minimizar  altura
-			self.position=lista[nplist[:,6].argmin()][0]
-		else:#Maximizar linhas
-			#print("full lines")#altura
-			#print(nplist[:,1])#altura list
-			#print(nplist[:,1].argmax())#Maximizar linhas completadas
-			#print("awarded lines")#altura
-			#print(nplist[:,2])#altura list
-			#print(nplist[:,2].argmax())#Maximizar linhas recompensadas
-			self.position=lista[nplist[:,2].argmax()][0]
+		if action==0:#Max  TAI
+			self.position=lista[nplist[:,10].argmax()][0]
+		elif action==1:#Min AAINT
+			self.position=lista[nplist[:,11].argmin()][0]
+		elif action==2:#Max TNPB
+			self.position=lista[nplist[:,12].argmax()][0]
+		else:#Max stackAndAttack
+			self.position=lista[nplist[:,13].argmax()][0]
 		#print("got_pos:")
 		#print(self.position)
 		self.poliminos.wait_time=0.000000001
@@ -172,68 +130,24 @@ class Q_learning():
 	
 	def update_q_value(self):
 		#h =[self.heights[0], self.heights[1], self.heights[2], self.heights[3], self.heights[4], self.heights[5], self.heights[6], self.heights[7], self.heights[8], self.heights[9]]
-		old_column=self.column[:]
-		#old_h_mean=self.height_mean
+		old_h_mean=self.height_mean
 		old_piece = self.current_piece
 		self.current_piece = self.piece_list.index(self.poliminos.piece.shape)
-		reward = self.get_reward()
+		reward = self.get_reward(old_h_mean)
 		
 		#Valor Q atual
-		if self.poliminos.field_size_x==8:
-			old_q_value = self.q_values[old_column[0],old_column[1],old_column[2],old_column[3],  old_column[4],old_column[5],old_column[6],old_column[7], old_piece, self.old_action]
-		elif self.poliminos.field_size_x==10:
-			old_q_value = self.q_values[old_column[0],old_column[1],old_column[2],old_column[3],  old_column[4],old_column[5],old_column[6],old_column[7],  old_column[8],old_column[9], old_piece, self.old_action]
-		elif self.poliminos.field_size_x==12:
-			old_q_value = self.q_values[old_column[0],old_column[1],old_column[2],old_column[3],  old_column[4],old_column[5],old_column[6],old_column[7],  old_column[8],old_column[9],old_column[10],old_column[11], old_piece, self.old_action]
-		elif self.poliminos.field_size_x==14:
-			old_q_value = self.q_values[old_column[0],old_column[1],old_column[2],old_column[3],  old_column[4],old_column[5],old_column[6],old_column[7],  old_column[8],old_column[9],old_column[10],old_column[11],  old_column[12],old_column[13], old_piece, self.old_action]
-		elif self.poliminos.field_size_x==16:
-			old_q_value = self.q_values[old_column[0],old_column[1],old_column[2],old_column[3],  old_column[4],old_column[5],old_column[6],old_column[7],  old_column[8],old_column[9],old_column[10],old_column[11],  old_column[12],old_column[13],old_column[14],old_column[15], old_piece, self.old_action]
-		elif self.poliminos.field_size_x==18:
-			old_q_value = self.q_values[old_column[0],old_column[1],old_column[2],old_column[3],  old_column[4],old_column[5],old_column[6],old_column[7],  old_column[8],old_column[9],old_column[10],old_column[11],  old_column[12],old_column[13],old_column[14],old_column[15],  old_column[16],old_column[17], old_piece, self.old_action]
-		elif self.poliminos.field_size_x==20:
-			old_q_value = self.q_values[old_column[0],old_column[1],old_column[2],old_column[3],  old_column[4],old_column[5],old_column[6],old_column[7],  old_column[8],old_column[9],old_column[10],old_column[11],  old_column[12],old_column[13],old_column[14],old_column[15],  old_column[16],old_column[17],old_column[18],old_column[19], old_piece, self.old_action]
-		#old_q_value=self.q_values[old_h_mean, old_piece, self.old_action]
+		old_q_value=self.q_values[old_h_mean, old_piece, self.old_action]
 		
 		#deferença temporal = reward + (discount_factor * maxima recompensa futura) - old_q_value
-		if self.poliminos.field_size_x==8:
-			temporal_difference = reward +(self.discount_factor * np.max(self.q_values[self.column[0],self.column[1],self.column[2],self.column[3],  self.column[4],self.column[5],self.column[6],self.column[7], self.current_piece])) - old_q_value
-		elif self.poliminos.field_size_x==10:
-			temporal_difference = reward +(self.discount_factor * np.max(self.q_values[self.column[0],self.column[1],self.column[2],self.column[3],  self.column[4],self.column[5],self.column[6],self.column[7],  self.column[8],self.column[9], self.current_piece])) - old_q_value
-		elif self.poliminos.field_size_x==12:
-			temporal_difference = reward +(self.discount_factor * np.max(self.q_values[self.column[0],self.column[1],self.column[2],self.column[3],  self.column[4],self.column[5],self.column[6],self.column[7],  self.column[8],self.column[9],self.column[10],self.column[11], self.current_piece])) - old_q_value
-		elif self.poliminos.field_size_x==14:
-			temporal_difference = reward +(self.discount_factor * np.max(self.q_values[self.column[0],self.column[1],self.column[2],self.column[3],  self.column[4],self.column[5],self.column[6],self.column[7],  self.column[8],self.column[9],self.column[10],self.column[11],  self.column[12],self.column[13], self.current_piece])) - old_q_value
-		elif self.poliminos.field_size_x==16:
-			temporal_difference = reward +(self.discount_factor * np.max(self.q_values[self.column[0],self.column[1],self.column[2],self.column[3],  self.column[4],self.column[5],self.column[6],self.column[7],  self.column[8],self.column[9],self.column[10],self.column[11],  self.column[12],self.column[13],self.column[14],self.column[15], self.current_piece])) - old_q_value
-		elif self.poliminos.field_size_x==18:
-			temporal_difference = reward +(self.discount_factor * np.max(self.q_values[self.column[0],self.column[1],self.column[2],self.column[3],  self.column[4],self.column[5],self.column[6],self.column[7],  self.column[8],self.column[9],self.column[10],self.column[11],  self.column[12],self.column[13],self.column[14],self.column[15],  self.column[16],self.column[17], self.current_piece])) - old_q_value
-		elif self.poliminos.field_size_x==20:
-			temporal_difference = reward +(self.discount_factor * np.max(self.q_values[self.column[0],self.column[1],self.column[2],self.column[3],  self.column[4],self.column[5],self.column[6],self.column[7],  self.column[8],self.column[9],self.column[10],self.column[11],  self.column[12],self.column[13],self.column[14],self.column[15],  self.column[16],self.column[17],self.column[18],self.column[19], self.current_piece])) - old_q_value
-		#temporal_difference = reward +(self.discount_factor * np.max(self.q_values[self.height_mean, self.current_piece])) - old_q_value
+		temporal_difference = reward +(self.discount_factor * np.max(self.q_values[self.height_mean, self.current_piece])) - old_q_value
 		
 		#Novo valor Q
 		new_q_value = old_q_value + (self.learning_rate * temporal_difference)
 		
-		if self.poliminos.field_size_x==8:
-			self.q_values[old_column[0],old_column[1],old_column[2],old_column[3],  old_column[4],old_column[5],old_column[6],old_column[7], old_piece, self.old_action] = new_q_value
-		elif self.poliminos.field_size_x==10:
-			self.q_values[old_column[0],old_column[1],old_column[2],old_column[3],  old_column[4],old_column[5],old_column[6],old_column[7],  old_column[8],old_column[9], old_piece, self.old_action] = new_q_value
-		elif self.poliminos.field_size_x==12:
-			self.q_values[old_column[0],old_column[1],old_column[2],old_column[3],  old_column[4],old_column[5],old_column[6],old_column[7],  old_column[8],old_column[9],old_column[10],old_column[11], old_piece, self.old_action] = new_q_value
-		elif self.poliminos.field_size_x==14:
-			self.q_values[old_column[0],old_column[1],old_column[2],old_column[3],  old_column[4],old_column[5],old_column[6],old_column[7],  old_column[8],old_column[9],old_column[10],old_column[11],  old_column[12],old_column[13], old_piece, self.old_action] = new_q_value
-		elif self.poliminos.field_size_x==16:
-			self.q_values[old_column[0],old_column[1],old_column[2],old_column[3],  old_column[4],old_column[5],old_column[6],old_column[7],  old_column[8],old_column[9],old_column[10],old_column[11],  old_column[12],old_column[13],old_column[14],old_column[15], old_piece, self.old_action] = new_q_value
-		elif self.poliminos.field_size_x==18:
-			self.q_values[old_column[0],old_column[1],old_column[2],old_column[3],  old_column[4],old_column[5],old_column[6],old_column[7],  old_column[8],old_column[9],old_column[10],old_column[11],  old_column[12],old_column[13],old_column[14],old_column[15],  old_column[16],old_column[17], old_piece, self.old_action] = new_q_value
-		elif self.poliminos.field_size_x==20:
-			self.q_values[old_column[0],old_column[1],old_column[2],old_column[3],  old_column[4],old_column[5],old_column[6],old_column[7],  old_column[8],old_column[9],old_column[10],old_column[11],  old_column[12],old_column[13],old_column[14],old_column[15],  old_column[16],old_column[17],old_column[18],old_column[19], old_piece, self.old_action] = new_q_value
-		#self.q_values[old_h_mean, old_piece, self.old_action] = new_q_value
-		
+		self.q_values[old_h_mean, old_piece, self.old_action] = new_q_value
 		#print(f"old {old_q_value}	new {new_q_value}")
 	
-	def get_reward(self):
+	def get_reward(self, old_h_mean):
 		over_10, holes = self.update_parameters()
 		reward=0
 		if self.old_garbage>self.poliminos.garbage:
@@ -260,12 +174,9 @@ class Q_learning():
 					holes+=1
 			if count>10:
 				over_10+=1
-				self.column[x]=1
-			else:
-				self.column[x]=0
 			count=0
 		#self.heights=h
-		#self.height_mean=int(sum(h)/self.poliminos.field_size_x)
+		self.height_mean=int(sum(h)/self.poliminos.field_size_x)
 		return over_10, holes
 		
 	

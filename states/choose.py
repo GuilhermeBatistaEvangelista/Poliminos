@@ -55,7 +55,7 @@ class Choose(State):
 		self.selected_alg=-1
 		if entrymode!=0:
 			self.selected_alg=0
-		self.selected_size=0
+		self.selected_size=3
 		#treino automatico
 		self.combinations = [list(i) for i in itertools.product([False,True],repeat=5)]
 		self.training_step=0
@@ -68,9 +68,10 @@ class Choose(State):
 			self.position=4
 			self.positionx=1
 			if self.training_step >= len(self.combinations):
+				actions["Scape"]=True
 				self.selected_size+=1
 				self.training_step=0
-			if self.selected_size >= len(self.recs_width):
+			elif self.selected_size >= len(self.recs_width):
 				actions["Scape"]=True
 			else:
 				actions["Confirm"]=True

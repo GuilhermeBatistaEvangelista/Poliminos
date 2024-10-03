@@ -192,6 +192,11 @@ class Train_Q(State):
 				matplotlib.pyplot.plot([], [], color = cycle[0], label ='Minimizar Buracos')
 				matplotlib.pyplot.plot([], [], color = cycle[1], label ='Minimizar Altura')
 				matplotlib.pyplot.plot([], [], color = cycle[2], label ='Maximizar Linhas')
+			if(len(self.actions_list[0])==4):#labels
+				matplotlib.pyplot.plot([], [], color = cycle[3], label ='stackAndAttack')
+				matplotlib.pyplot.plot([], [], color = cycle[2], label ='TNPB')
+				matplotlib.pyplot.plot([], [], color = cycle[1], label ='AAINT')
+				matplotlib.pyplot.plot([], [], color = cycle[0], label ='TAI')
 			matplotlib.pyplot.legend(loc="lower left")
 			x=np.arange(0,len(self.actions_list))
 			y= np.vstack((self.actions_list[:, 0], self.actions_list[:, 1]))

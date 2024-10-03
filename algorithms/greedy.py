@@ -77,9 +77,23 @@ class Greedy():
 	def save_move(self, piece, scores, parameters):
 		if piece.pos[1]<=self.poliminos.piece.pos[1]:
 			pos=[piece.pos[0], piece.pos[1], piece.facing, self.hold]
-			self.values.append([pos, scores[0], scores[1], scores[2], scores[3], parameters[0], sum(parameters[1]), parameters[1]])
-			#					pos, num_lines, awarded_lines,   score, attack,			holes, 		soma das alturas, alturas
-			#					0,			1,				2, 		3, 		4,				5,						6,		7
+			##Tetris Agent Implementation
+			TAI = (parameters[2]*0.69) + (max(parameters[1])*-0.60) + (scores[0]*0.80) + (False*1.07) 
+			TAI += (parameters[0]*0.68) + (sum(parameters[3])*1.13) + (parameters[4]*3.63)
+			#Applying Artificial Intelligence to Nintendo Tetris				lower is better
+			AAINT = scores[0] + (self.pieceLockHeight(piece)*12.885008263218383) + (sum(parameters[3])*15.842707182438396)
+			AAINT += (parameters[0]*26.894496507795950) + (parameters[5][0]*27.616914062397015) + (parameters[5][1]*30.185110719279040)
+			#Tetris AI – The (Near) Perfect Bot
+			TNPB =  (sum(parameters[1])*-0.510066) + (scores[0]*0.760666) + (parameters[0]*-0.35663) + (parameters[2]*-0.184483)
+			#Stack and Score
+			meanLines=sum(parameters[1])/len(parameters[1])
+			if meanLines<10:
+				stackAndAttack = meanLines*2 + scores[1]*-2 + scores[3]*-2 * parameters[0]*-4 
+			else:
+				stackAndAttack = meanLines*-2 + scores[1]*2 + scores[3]*4 * parameters[0]*-4 
+			self.values.append([pos, scores[0], scores[1], scores[2], scores[3], parameters[0], sum(parameters[1]), parameters[1], parameters[2], sum(parameters[3]), TAI, AAINT, TNPB, stackAndAttack])
+			#					pos, num_lines, awarded_lines,   score, attack,			holes, 		soma das alturas, alturas,		bumpiness, 	sum of well deep, 	TAI, AAINT, TNPB, stackAndAttack
+			#					0,			1,				2, 		3, 		4,				5,						6,		7, 				8,					9,	10,		11,	12,		13
 		
 	def full_line(self, piece):#conta linhas completas
 		lines=[]
@@ -105,8 +119,10 @@ class Greedy():
 		heights=[]
 		matrix=self.matrix
 		count=0
+		matrixBinary = [[0 for row in range(20)] for col in range(self.poliminos.field_size_x)]
 		filled=False
-		empit=False
+		transitionsCol=0
+		temp=0
 		for x in range(self.poliminos.field_size_x):
 			for y in range(20):
 				if matrix[x][y]!=0:
@@ -115,20 +131,56 @@ class Greedy():
 					if block.pos[0]==x and block.pos[1]==y:
 						filled=True
 				if filled:
-					count = y
+					count = y+1
+					matrixBinary[x][y] = 1
 					filled=False
 			for y in range(count):
-				if matrix[x][y]==0:
-					empit=True
-				for block in piece.blocks:
-					if block.pos[0]!=x and block.pos[1]!=y:
-						empit=True
-				if empit:
+				if y==0:
+					temp=matrixBinary[x][y]
+				elif temp!=matrixBinary[x][y]:
+					transitionsCol+=1
+					temp=matrixBinary[x][y]
+				if not matrixBinary[x][y]:
 					holes+=1
-					empit=False
 			heights.append(count-num_lines)
 			count=0
-		return [holes, heights]
+		transitionsRow=0
+		for y in range(max(heights)+num_lines):
+			for x in range(self.poliminos.field_size_x):
+				if x==0:
+					temp=matrixBinary[x][y]
+				elif temp!=matrixBinary[x][y]:
+					transitionsRow+=1
+					temp=matrixBinary[x][y]
+				if (x==0 or x==(self.poliminos.field_size_x-1)) and temp==0:
+					transitionsRow+=1
+					
+		bumpiness=0
+		wells=[]
+		heightMean=sum(heights)/len(heights)
+		absDifMean=abs(heights[0]-heightMean)#Mean of the absolute difference between the height of each column and the mean height
+
+		if(heights[0]<heights[1]):#is first col well?
+			wells.append(heights[1]-heights[0])
+		else:
+			wells.append(0)
+		for i in range(1,len(heights)):
+			bumpiness+=heights[i-1]-heights[i]
+			absDifMean+=(heights[i]-heightMean)
+			if(i<(len(heights)-1)):
+				if(heights[i-1]>heights[i] and heights[i]<heights[i+1]):#is well
+					if(heights[i-1]<heights[i+1]):
+						wells.append(heights[i-1]-heights[i])
+					else:
+						wells.append(heights[i+1]-heights[i])
+				else:
+					wells.append(0)
+		if(heights[len(heights)-2]>heights[len(heights)-1]):#is last col well?
+			wells.append(heights[len(heights)-2]-heights[len(heights)-1])
+		else:
+			wells.append(0)
+		absDifMean/=len(heights)
+		return [holes, heights, bumpiness, wells, absDifMean, [transitionsCol, transitionsRow]]
 	
 	def patters(self, num_lines, piece):
 		#Moves:
@@ -161,3 +213,14 @@ class Greedy():
 			attack=6+(1*self.poliminos.Back_to_Back)
 			self.poliminos.Back_to_Back=True
 		return [num_lines, awarded_lines, score, attack]
+
+	def pieceLockHeight(self, piece):
+		max=00
+		min=99
+		for block in piece.blocks:
+			if block.pos[1]>max:
+				max = block.pos[1]
+			if block.pos[1]<min:
+				min = block.pos[1]
+		
+		return max-min
