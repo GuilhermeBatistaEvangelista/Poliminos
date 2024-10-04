@@ -86,11 +86,8 @@ class Greedy():
 			#Tetris AI – The (Near) Perfect Bot
 			TNPB =  (sum(parameters[1])*-0.510066) + (scores[0]*0.760666) + (parameters[0]*-0.35663) + (parameters[2]*-0.184483)
 			#Stack and Score
-			meanLines=sum(parameters[1])/len(parameters[1])
-			if meanLines<10:
-				stackAndAttack = meanLines*2 + scores[1]*-2 + scores[3]*-2 * parameters[0]*-4 
-			else:
-				stackAndAttack = meanLines*-2 + scores[1]*2 + scores[3]*4 * parameters[0]*-4 
+			stackAndAttack = (min(parameters[1])*-4) +  ((6-max(parameters[1]))*2) + (scores[0]*(max(parameters[1])-6)) + (scores[3]*(max(parameters[1])-6))
+			stackAndAttack += (sum(parameters[3])*-1) + (parameters[0]*-5) 
 			self.values.append([pos, scores[0], scores[1], scores[2], scores[3], parameters[0], sum(parameters[1]), parameters[1], parameters[2], sum(parameters[3]), TAI, AAINT, TNPB, stackAndAttack])
 			#					pos, num_lines, awarded_lines,   score, attack,			holes, 		soma das alturas, alturas,		bumpiness, 	sum of well deep, 	TAI, AAINT, TNPB, stackAndAttack
 			#					0,			1,				2, 		3, 		4,				5,						6,		7, 				8,					9,	10,		11,	12,		13
