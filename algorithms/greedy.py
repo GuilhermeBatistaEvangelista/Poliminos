@@ -50,20 +50,18 @@ class Greedy():
 	
 	def get_moves(self, piece):#movimenta a peça por todas as colunas
 		#print('move_x')
-		count=0
+		startPosX=piece.pos[0]
+		#print(f' {piece.shape}	piece pos 0: {piece.pos}')
 		while piece.move([1,0]):#move para a direita até onde é possivel 
 			pass
 		self.drop(piece)#movimento de queda
-		count=0
-		#print(f'	{piece.pos}')
 		i=1
 		while piece.move([-1,0]):#move para a esquerda até onde é possivel 
-			count-=1
 			#print(piece.pos)
 			self.drop(piece)#movimento de queda
 			i+=1
 		self.i+=i
-		piece.move([count,0])#retorna a peça para o centro
+		piece.move([startPosX-piece.pos[0],0])#retorna a peça para o centro
 	
 	def drop(self, piece):
 		#print("drop",piece.pos)
@@ -87,7 +85,7 @@ class Greedy():
 			TNPB =  (sum(parameters[1])*-0.510066) + (scores[0]*0.760666) + (parameters[0]*-0.35663) + (parameters[2]*-0.184483)
 			#Stack and Score
 			stackAndAttack = (min(parameters[1])*-4) +  ((6-max(parameters[1]))*2) + (scores[0]*(max(parameters[1])-6)) + (scores[3]*(max(parameters[1])-6))
-			stackAndAttack += (sum(parameters[3])*-1) + (parameters[0]*-5) 
+			stackAndAttack += (sum(parameters[3])*-1) + (parameters[0]*-5)
 			self.values.append([pos, scores[0], scores[1], scores[2], scores[3], parameters[0], sum(parameters[1]), parameters[1], parameters[2], sum(parameters[3]), TAI, AAINT, TNPB, stackAndAttack])
 			#					pos, num_lines, awarded_lines,   score, attack,			holes, 		soma das alturas, alturas,		bumpiness, 	sum of well deep, 	TAI, AAINT, TNPB, stackAndAttack
 			#					0,			1,				2, 		3, 		4,				5,						6,		7, 				8,					9,	10,		11,	12,		13

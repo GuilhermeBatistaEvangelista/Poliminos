@@ -38,6 +38,8 @@ class Train_Q(State):
 		self.poliminos2 = Poliminos(self.game, self.block_size, self.field_size_x, self.pieces, self.game.canvas_w*0.75)
 		self.Q1 = self.Algorithm(self.poliminos1, self.pieces)
 		self.Q2 = self.Algorithm(self.poliminos2, self.pieces)
+		self.actionsFalse=self.Q1.actions.copy()
+		self.timeToNextAction=0.0
 		self.score=[0,0]
 		self.lines_score=[0,0]
 		self.epsilon=0.5
@@ -63,17 +65,22 @@ class Train_Q(State):
 			self.game.reset_actions()
 		
 		#self.reload_graphs()
-		
+		self.timeToNextAction+=deltatime
+		#if self.	 > 0.0000000000001:
 		self.Q1.update()
+		self.Q2.update()
+		#self.timeToNextAction=0.0
+		
 		t1=self.poliminos1.update(deltatime, self.Q1.actions)
 		self.poliminos2.garbage+=self.poliminos1.attack	#envia o ataque do jogador para a Ai
 		self.attack1+=self.poliminos1.attack
 		
-		self.Q2.update()
 		t2=self.poliminos2.update(deltatime, self.Q2.actions)
 		self.poliminos1.garbage+=self.poliminos2.attack	#envia o ataque da AI para o jogador
 		self.attack2+=self.poliminos2.attack
 		
+		self.Q1.actions = self.actionsFalse.copy()
+		self.Q2.actions = self.actionsFalse.copy()
 		self.game_time+=deltatime
 		if self.game_time>3600:# se o jogo durar mais de 1 hora
 			if self.attack1!=self.attack2:#seleciona o que possui maior linhas de atques enviadas
@@ -212,6 +219,7 @@ class Train_Q(State):
 			matplotlib.pyplot.clf()
 			
 			np.savez("algorithms/"+self.name+"_"+str(self.score[0]+self.score[1]), q_values)
+			matplotlib.pyplot.close('all')
 			
 			
 	def reload_graphs(self):

@@ -42,9 +42,10 @@ class Choose(State):
 			self.recs_width[i].center=(self.game.canvas_w*(0.08+0.14*i),self.game.canvas_h/3)
 		#botões dos algoritmos
 		#self.recs_alg = [pygame.Rect((self.game.canvas_w/2,self.game.canvas_h/2), (self.game.canvas_w/4,self.game.canvas_h/8)) for i in range(6)]
-		self.recs_alg = [pygame.Rect((self.game.canvas_w/2,self.game.canvas_h/2), (self.game.canvas_w/4,self.game.canvas_h/8))]
-		for i in range(1):
-			self.recs_alg[i].center=(self.game.canvas_w*(0.25+0.25*(i+1)),self.game.canvas_h*(0.55))
+		self.recs_alg = [pygame.Rect((self.game.canvas_w/2,self.game.canvas_h/2), (self.game.canvas_w/4,self.game.canvas_h/8))for i in range(len(self.option))]
+		for i in range(len(self.recs_alg)):
+			self.recs_alg[i].center=(self.game.canvas_w*(0.23+0.26*(i)),self.game.canvas_h*(0.55))
+			print(i)
 		#for i in range(3,6):
 		#	self.recs_alg[i].center=(self.game.canvas_w*(0.25+0.25*(i-3)),self.game.canvas_h*(0.75))
 		#botões de controle
@@ -55,10 +56,10 @@ class Choose(State):
 		self.selected_alg=-1
 		if entrymode!=0:
 			self.selected_alg=0
-		self.selected_size=0
+		self.selected_size=6
 		#treino automatico
 		self.combinations = [list(i) for i in itertools.product([False,True],repeat=5)]
-		self.training_step=0
+		self.training_step=29
 		
 	
 	def update(self, deltatime, actions):
@@ -199,7 +200,7 @@ class Choose(State):
 				pygame.draw.rect(canvas, pygame.Color("red"), self.recs_width[i],  int(h/150), int(h/50))
 		
 		self.game.text(canvas,self.titles[2], 36, pygame.Color("black"), w/2, h*0.45)
-		for i in range(1):#						algoritmos
+		for i in range(len(self.recs_alg)):#						algoritmos
 			if self.position==2 and self.positionx==i:
 				pygame.draw.rect(canvas, pygame.Color("aliceblue"), self.recs_alg[i],  0, int(h/50))
 			if self.position==3 and self.positionx==(i-3):
@@ -208,7 +209,7 @@ class Choose(State):
 			if self.selected_alg==i:
 				pygame.draw.rect(canvas, pygame.Color("red"), self.recs_alg[i],  int(h/150), int(h/50))
 			if i<3:
-				self.game.text(canvas,self.option[i], 16, pygame.Color("black"), w*(0.25+0.25*((i+1))), h*(0.55))
+				self.game.text(canvas,self.option[i], 16, pygame.Color("black"), w*(0.23+0.26*((i))), h*(0.55))
 			else:
 				self.game.text(canvas,self.option[i], 16, pygame.Color("black"), w*(0.25+0.25*(i-3)), h*(0.75))
 		
@@ -234,7 +235,8 @@ class Choose(State):
 							3:"Tetromino",
 							4:"Pentomino"}
 			self.option = {0:"1 - Q(Height mean, piece, 3 actions)",
-							1:"2 - Q(10 x Column(Heigth/10), piece, 3 actions)"}
+							1:"2 - Q(Height mean, piece, 3 actions)",
+							2:"3 - StackStack and Score"}
 			self.control = {0:"Return",
 							1:"Confirm"}
 			self.errors = {0:"Selecione pelo menos um conjunto de peças",# erro nº1
@@ -252,10 +254,7 @@ class Choose(State):
 							4:"Pentaminó"}
 			self.option = {0:"1 - Q(média das alturas, peças, 3 ações)",
 							1:"2 - Q()",
-							2:"3 - Q()",
-							3:"4 - Q()",
-							4:"5 - Q()",
-							5:"6 - Q()"}
+							2:"3 - Q()"}
 			self.control = {0:"Retornar",
 							1:"Confirmar"}
 			self.errors = {0:"Selecione pelo menos um conjunto de peças",# erro nº1

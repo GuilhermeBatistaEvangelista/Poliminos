@@ -1,7 +1,6 @@
 import numpy as np
 from algorithms.greedy import Greedy
 
-TETROMINO = {'T':0, 'O':1, 'J':2, 'L':3, 'I':4, 'S':5, 'Z':6}
 poliminos_list={
 	'monomino':['1'],
 	'domino':['2'],
@@ -27,7 +26,7 @@ class Q_learning():
 			i+=1
 		
 		#				media da altura das colunas, N peças,  
-		#							 						4 ações(Minimizar  buracos, Minimizar altura, Maximizar linhas)
+		#							 						4 ações(TAI, AAINT, TNPB, stackAndAttack)
 		self.q_values = np.zeros((20, len(self.piece_list), 4))
 		#parametros de treinamento
 		self.epsilon = 0.0 #the percentage of time when we should take the best action (instead of a random action)
@@ -40,19 +39,22 @@ class Q_learning():
 		self.height_mean=0
 		self.total_lines_cleared=0
 		self.current_piece = self.piece_list.index(self.poliminos.piece.shape)
-		self.position=0#armazena a posição da peça
+		self.position=[]#armazena a posição da peça
 		self.old_action =-1
 		self.all_actions = [ 0, 0, 0, 0]#	lista de ações tomadas
-		self.current_action =self.get_next_action()
+		self.current_action = self.get_next_action()
 		self.training=True
+		self.lastScore=0
 
 	def update(self):
 		#while self.poliminos
-		if self.current_action==-1:
+		if self.current_action==-1 :
 			if self.training:
 				self.update_q_value()
 			#print("new action")
 			self.current_action = self.get_next_action()
+		if len(self.position)<1:#Se por algum motivo a posição não for obtida após escolher a ação
+				self.get_pos(self.current_action)
 		if self.execute_action():
 			self.old_action = self.current_action
 			self.current_action=-1
@@ -71,31 +73,40 @@ class Q_learning():
 		return action
 
 	def get_pos(self, action):
-		lista=self.g.update()
-		#	pos, num_lines, awarded_lines,   score, attack,	holes, 	soma das alturas, alturas,	bumpiness, 	sum of well deep, 	TAI, AAINT, TNPB, stackAndAttack
-		#	0,			1,				2, 		3, 		4,		5,					6,		7, 			8,					9,	10,		11,	12,		13
-		#	positon = [	piece.pos[0], piece.pos[1], piece.facing, self.hold	]
+		self.position=[]
+		try:
+			lista=self.g.update()
+			#	pos, num_lines, awarded_lines,   score, attack,	holes, 	soma das alturas, alturas,	bumpiness, 	sum of well deep, 	TAI, AAINT, TNPB, stackAndAttack
+			#	0,			1,				2, 		3, 		4,		5,					6,		7, 			8,					9,	10,		11,	12,		13
+			#	positon = [	piece.pos[0], piece.pos[1], piece.facing, self.hold	]
 
-		#print(lista)
-		nplist=np.array(lista, dtype=list)
-		#print(nplist)
-		if action==0:#Max  TAI
-			self.position=lista[nplist[:,10].argmax()][0]
-		elif action==1:#Min AAINT
-			self.position=lista[nplist[:,11].argmin()][0]
-		elif action==2:#Max TNPB
-			self.position=lista[nplist[:,12].argmax()][0]
-		else:#Max stackAndAttack
-			self.position=lista[nplist[:,13].argmax()][0]
-		#print("got_pos:")
-		#print(self.position)
-		self.poliminos.wait_time=0.000000001
+			#print(lista)
+			nplist=np.array(lista, dtype=list)
+			#print(nplist)
+			if action==0:#Max  TAI
+				self.position=lista[nplist[:,10].argmax()][0]
+			elif action==1:#Min AAINT
+				self.position=lista[nplist[:,11].argmin()][0]
+			elif action==2:#Max TNPB
+				self.position=lista[nplist[:,12].argmax()][0]
+			else:#Max stackAndAttack
+				self.position=lista[nplist[:,13].argmax()][0]
+			#print("got_pos:")
+			#print(self.position)
+		except:
+			print("An exception occurred")
+			print("lista", lista)
+			print("nplist", nplist)
+			print("piece", self.poliminos.piece.shape)
+			print("next", self.poliminos.next.shape)
+
 
 
 	def execute_action(self):#	True e se for concluida
-		if self.poliminos.wait_time==0:#se a peça for posicionada
-			self.actions["Left"]=False
-			self.actions["Right"]=False
+		#print('Pos', self.poliminos.piece.shape , self.poliminos.piece.pos,self.poliminos.piece.facing, self.position)
+		if len(self.position)<1: return False
+		if self.poliminos.score!=self.lastScore:#se a peça for posicionada
+			self.lastScore=self.poliminos.score
 			return True
 		#print(str(self.poliminos.piece.pos)+"<"+str(self.position)+"?")
 		if self.poliminos.can_hold and self.position[3]:#	HOLD
@@ -110,20 +121,10 @@ class Q_learning():
 			self.get_pos(self.current_action)
 		elif self.poliminos.piece.pos[0]==self.position[0] and self.poliminos.piece.facing==self.position[2]:
 			self.actions["Hard_Drop"]=True
-			self.actions["Left"]=False
-			self.actions["Right"]=False
 		elif self.poliminos.piece.pos[0]>self.position[0]:
-			self.actions["Right"]=False
-			if self.actions["Left"]:
-				self.actions["Left"]=False
-			else:
-				self.actions["Left"]=True
+			self.actions["Left"]=True
 		elif self.poliminos.piece.pos[0]<self.position[0]:
-			self.actions["Left"]=False
-			if self.actions["Right"]:
-				self.actions["Right"]=False
-			else:
-				self.actions["Right"]=True
+			self.actions["Right"]=True
 		
 		#print("now:"+str([self.poliminos.piece.pos,self.poliminos.piece.facing]))
 		return False

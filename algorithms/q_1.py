@@ -45,6 +45,7 @@ class Q_learning():
 		self.all_actions = [ 0, 0, 0]#	lista de ações tomadas
 		self.current_action =self.get_next_action()
 		self.training=True
+		self.lastScore=0
 
 	def update(self):
 		#while self.poliminos
@@ -99,13 +100,11 @@ class Q_learning():
 			self.position=lista[nplist[:,2].argmax()][0]
 		#print("got_pos:")
 		#print(self.position)
-		self.poliminos.wait_time=0.000000001
-
 
 	def execute_action(self):#	True e se for concluida
-		if self.poliminos.wait_time==0:#se a peça for posicionada
-			self.actions["Left"]=False
-			self.actions["Right"]=False
+		#print('Pos', self.poliminos.piece.shape , self.poliminos.piece.pos,self.poliminos.piece.facing, self.position)
+		if self.poliminos.score!=self.lastScore:#se a peça for posicionada
+			self.lastScore=self.poliminos.score
 			return True
 		#print(str(self.poliminos.piece.pos)+"<"+str(self.position)+"?")
 		if self.poliminos.can_hold and self.position[3]:#	HOLD
@@ -120,20 +119,10 @@ class Q_learning():
 			self.get_pos(self.current_action)
 		elif self.poliminos.piece.pos[0]==self.position[0] and self.poliminos.piece.facing==self.position[2]:
 			self.actions["Hard_Drop"]=True
-			self.actions["Left"]=False
-			self.actions["Right"]=False
 		elif self.poliminos.piece.pos[0]>self.position[0]:
-			self.actions["Right"]=False
-			if self.actions["Left"]:
-				self.actions["Left"]=False
-			else:
-				self.actions["Left"]=True
+			self.actions["Left"]=True
 		elif self.poliminos.piece.pos[0]<self.position[0]:
-			self.actions["Left"]=False
-			if self.actions["Right"]:
-				self.actions["Right"]=False
-			else:
-				self.actions["Right"]=True
+			self.actions["Right"]=True
 		
 		#print("now:"+str([self.poliminos.piece.pos,self.poliminos.piece.facing]))
 		return False

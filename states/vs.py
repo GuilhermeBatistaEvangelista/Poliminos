@@ -20,7 +20,7 @@ class Vs(State):
 					self.name +="_"+str(i+1)
 		self.name +=")"
 		self.path="algorithms/"+path
-		print("path",self.name)
+		print("path",self.path)
 		module = imp.load_source("Q_learning", self.path)
 		self.Algorithm=module.Q_learning
 		
@@ -35,8 +35,12 @@ class Vs(State):
 		self.poliminos2 = Poliminos(self.game, self.block_size, self.field_size_x, self.pieces, self.game.canvas_w*0.75)
 		self.Q = self.Algorithm(self.poliminos2, self.pieces)
 		self.Q.training=False
-		self.q_values = np.load("algorithms/"+self.name+"_250.npz")['arr_0']
-		self.Q.q_values = self.q_values
+		self.q_values = None
+		if(path[-4]!='3'):
+			self.q_values = np.load("algorithms/"+self.name+"_250.npz")['arr_0']
+			self.Q.q_values = self.q_values
+		self.actionsFalse=self.Q.actions.copy()
+		self.timeToNextAction=0.0
 		self.score=[0,0]
 		self.lines_score=[0,0]
 		self.back_button = pygame.Rect((0,0), (40,40))
@@ -56,11 +60,15 @@ class Vs(State):
 		t1=self.poliminos1.update(deltatime, actions)
 		self.poliminos2.garbage+=self.poliminos1.attack	#envia o ataque do jogador para o agente
 		
-		self.Q.update()
+		self.timeToNextAction+=deltatime
+		if self.timeToNextAction > 0.05:
+			self.Q.update()
+			self.timeToNextAction=0.0
 		
 		t2=self.poliminos2.update(deltatime, self.Q.actions)
 		self.poliminos1.garbage+=self.poliminos2.attack	#envia o ataque do agente para o jogador
 		
+		self.Q.actions = self.actionsFalse.copy()
 		
 		if not t1:#Se o jogador perder
 			new_state = Game_Over(self.game, False)
@@ -71,7 +79,8 @@ class Vs(State):
 			self.poliminos2 = Poliminos(self.game, self.block_size, self.field_size_x, self.pieces, self.game.canvas_w*0.75)
 			self.Q = self.Algorithm(self.poliminos2, self.pieces)
 			self.Q.training=False
-			self.Q.q_values = self.q_values
+			if(self.q_values is not None):
+				self.Q.q_values = self.q_values
 			self.score[1]+=1
 		elif not t2:#Se o algoritimo perder
 			new_state = Game_Over(self.game, True)
@@ -82,7 +91,8 @@ class Vs(State):
 			self.poliminos2 = Poliminos(self.game, self.block_size, self.field_size_x, self.pieces, self.game.canvas_w*0.75)
 			self.Q = self.Algorithm(self.poliminos2, self.pieces)
 			self.Q.training=False
-			self.Q.q_values = self.q_values
+			if(self.q_values is not None):
+				self.Q.q_values = self.q_values
 			self.score[0]+=1
 
 	def draw(self, canvas):
