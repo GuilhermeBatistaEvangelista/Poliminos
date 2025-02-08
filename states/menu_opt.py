@@ -6,19 +6,21 @@ class Menu_Opt(State):
 	def __init__(self, game):
 		State.__init__(self, game)
 		self.language()
-		self.positiony = 0
+		self.positiony = 1
 		self.positionx = 0
-		self.rec_reso = pygame.Rect((self.game.canvas_w/2,self.game.canvas_h/2), (self.game.canvas_w*0.9,self.game.canvas_h/8))#retangulo que encapsula o menu de resolução
+		#self.rec_reso = pygame.Rect((self.game.canvas_w/2,self.game.canvas_h/2), (self.game.canvas_w*0.9,self.game.canvas_h/8))#retangulo que encapsula o menu de resolução
 		#retangulos que encapsulam as opções do menu de resolução
+		'''
 		self.rec_reso_opts= [pygame.Rect((self.game.canvas_w/2,self.game.canvas_h/2), (self.game.canvas_w/6,self.game.canvas_h/10)) for i in range(4)]#retangulos que encapsulam as opções do menu de resolução
 		for i in range(len(self.rec_reso_opts)):
 			self.rec_reso_opts[i].center=(self.game.canvas_w*(0.3+0.18*i),self.game.canvas_h*0.1)
+		'''
 		###########retangulos que encapsulam as opções do menu de controles
 		self.recs= [pygame.Rect((self.game.canvas_w/2,self.game.canvas_h/2), (self.game.canvas_w*0.26,self.game.canvas_h/10)) for i in range(10)]#retangulos que encapsulam as opções do menu de resolução
 		for i in range(5):#coluna da esquerda
-			self.recs[i].center=(self.game.canvas_w*0.25,self.game.canvas_h*(0.25+i*0.13))
+			self.recs[i].center=(self.game.canvas_w*0.25,self.game.canvas_h*(0.20+i*0.13))
 		for i in range(5,10):#coluna da direita
-			self.recs[i].center=(self.game.canvas_w*0.75,self.game.canvas_h*(0.25+(i-5)*0.13))
+			self.recs[i].center=(self.game.canvas_w*0.75,self.game.canvas_h*(0.20+(i-5)*0.13))
 		#retangulos que encapsulam as opções do menu de linguagem
 		self.rec_langs= [pygame.Rect((self.game.canvas_w/2,self.game.canvas_h/2), (self.game.canvas_w/25,self.game.canvas_h/12)) for i in range(2)]
 		self.rec_langs[0].center=(self.game.canvas_w*0.255,self.game.canvas_h*0.9)
@@ -30,6 +32,7 @@ class Menu_Opt(State):
 		
 		self.waiting_key=False
 		self.temp_key=None
+		self.last_key_position=None
 		
 	def update(self, deltatime, actions):
 		if self.waiting_key and self.game.last_key!=6666:
@@ -39,6 +42,9 @@ class Menu_Opt(State):
 		movey = actions["Down"] - actions["Up"] #recebe o valor do movimento vertical
 		movex = actions["Right"] - actions["Left"] #recebe o valor do movimento horizontal
 		self.positiony = ((self.positiony + movey) % 7) # realiza o movimento vertical dentre as opções
+		if self.positiony==0:
+			if movey>0:self.positiony=1
+			else:self.positiony=6
 		if self.positiony==0 or self.positiony==6:
 			self.positionx = ((self.positionx + movex) % 4) # realiza o movimento horizontal dentre as opções
 		else:
@@ -46,6 +52,7 @@ class Menu_Opt(State):
 		
 		if self.game.mouse:#se clicar
 			#resoluções
+			'''
 			if self.rec_reso_opts[0].collidepoint(self.game.mouse_pos):#480X270
 				actions["Confirm"]=True
 				self.positionx, self.positiony=0,0
@@ -58,6 +65,7 @@ class Menu_Opt(State):
 			if self.rec_reso_opts[3].collidepoint(self.game.mouse_pos):#1920X1080
 				actions["Confirm"]=True
 				self.positionx, self.positiony=3,0
+			'''
 			#linguagem
 			if self.rec_langs[0].collidepoint(self.game.mouse_pos):#EN
 				actions["Confirm"]=True
@@ -111,7 +119,10 @@ class Menu_Opt(State):
 				self.game.save["resolution"]["W"], self.game.save["resolution"]["H"] = self.game.window_w, self.game.window_h
 				self.game.window = pygame.display.set_mode((self.game.window_w,self.game.window_h))
 				write_save(self.game.save)#salva anova resolução
-			elif self.positiony==6:#caso seja a ultima coluna de opções
+			elif self.positiony==6:#caso seja a ultima linha de opções
+				if(self.waiting_key):
+					self.game.save["controls"][self.con[self.last_key_position]]=self.temp_key
+					self.waiting_key=False
 				if self.positionx==0:# EN
 					self.game.save["language"] = "EN"
 					self.language()
@@ -129,11 +140,14 @@ class Menu_Opt(State):
 					self.state_out()			#retorna depois de salvar
 					self.game.save=load_save()
 			elif self.positiony!=0:#caso seja uma tecla de controle
+				if self.temp_key is not None:#caso outra tecla de controle tenha sido apertada
+					self.game.save["controls"][self.con[self.last_key_position]]=self.temp_key
 				if self.positionx==1:
 					x=self.positiony+4
 				else:
 					x=self.positiony-1
 				#desenha a tela e espera a entrada de uma tecla
+				self.last_key_position=x
 				self.temp_key=self.game.save["controls"][self.con[x]]
 				self.game.save["controls"][self.con[x]]=6666
 				self.game.last_key=6666
@@ -148,6 +162,7 @@ class Menu_Opt(State):
 		w,h = self.game.canvas_w, self.game.canvas_h
 		canvas.fill(pygame.Color("aquamarine3"))
 		#desenha o menu de resolução da tela
+		'''
 		self.rec_reso.center=(w/2,h*0.1)
 		self.game.text(canvas, self.option[0], 36, pygame.Color("black"), w*0.13, h/10)
 		pygame.draw.rect(canvas, pygame.Color("white"), self.rec_reso,  int(h/150), int(h/50))
@@ -159,7 +174,7 @@ class Menu_Opt(State):
 			else:
 				pygame.draw.rect(canvas, pygame.Color("white"), self.rec_reso_opts[i],  int(h/150), int(h/50))
 			self.game.text(canvas, str(self.res[i][0])+"X"+str(self.res[i][1]), 36, pygame.Color("black"), w*(0.3+0.18*i), h*0.1)
-		
+		'''
 		#desenha o menu de seleção de teclas
 		if self.positiony>0 and self.positiony<6:
 			if self.positionx==0:#coluna da esquerda
@@ -169,9 +184,9 @@ class Menu_Opt(State):
 		for i in range(10):#coluna da esquerda
 			pygame.draw.rect(canvas, pygame.Color("white"), self.recs[i],  int(h/150), int(h/50))
 			if i<5:#coluna da esquerda
-				self.game.text(canvas, self.menucon[i]+":"+pygame.key.name(self.game.save["controls"][self.con[i]]), 36, pygame.Color("black"), w*0.25, h*(0.25+i*0.13))
+				self.game.text(canvas, self.menucon[i]+":"+pygame.key.name(self.game.save["controls"][self.con[i]]), 36, pygame.Color("black"), w*0.25, h*(0.20+i*0.13))
 			else:#coluna da direita
-				self.game.text(canvas, self.menucon[i]+":"+pygame.key.name(self.game.save["controls"][self.con[i]]), 36, pygame.Color("black"), w*0.75, h*(0.25+(i-5)*0.13))
+				self.game.text(canvas, self.menucon[i]+":"+pygame.key.name(self.game.save["controls"][self.con[i]]), 36, pygame.Color("black"), w*0.75, h*(0.20+(i-5)*0.13))
 		
 		#desenha as opções de linguagem
 		rec = pygame.Rect((w/2,h/2), (w*0.26,h/10))
@@ -210,10 +225,7 @@ class Menu_Opt(State):
 		
 	
 	def swap_key(self):# espera até uma tecla ser pressionada e retorna ela
-		if self.positionx==1:
-			x=self.positiony+4
-		else:
-			x=self.positiony-1
+		x=self.last_key_position
 		key=self.game.last_key
 		if key!=pygame.K_ESCAPE and key!=pygame.K_RETURN:# se a tecla a ser atribuida não esc ou enter
 			self.game.save["controls"][self.con[x]]=key
@@ -236,7 +248,7 @@ class Menu_Opt(State):
 			self.menucon = ["Left", "Right", "Up", "Down", "Confirm", "Soft Drop", "Hard Drop", "Rotate Right", "Rotate Left", "Hold"]
 		
 		elif self.game.save["language"] == "PT":
-			self.option = ["Resolução","Teclas","Linguagem","Resetar","Salvar"]
+			self.option = ["Resolução","Teclas","Linguagem","Redefinir","Salvar"]
 			self.menucon = ["Esquerda", "Direita", "Cima", "Baixo", "Confirmar", "Queda Suave", "Queda Brusca", "Girar p/Direita", "Girar p/Esquerda", "Segurar"]
 		self.res = [(480, 270), (640, 360), (1366, 768), (1920, 1080)]
 		

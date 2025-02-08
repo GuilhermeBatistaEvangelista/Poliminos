@@ -45,7 +45,6 @@ class Menu(State):
 				new_state = Choose(self.game, 0)
 				new_state.state_in()	#adiciona o estado ao topo da pilha
 			if self.position==1:#se VS AI for selecionada
-				self.game.playGame=True
 				new_state = Choose(self.game, 1)
 				new_state.state_in()	#adiciona o estado ao topo da pilha
 			if self.position==2:#se configuração for selecionada

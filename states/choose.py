@@ -56,16 +56,17 @@ class Choose(State):
 		self.selected_alg=-1
 		if entrymode!=0:
 			self.selected_alg=0
-		self.selected_size=6
+		self.selected_size=1
 		#treino automatico
 		self.combinations = [list(i) for i in itertools.product([False,True],repeat=5)]
-		self.training_step=29
+		self.training_step=2
 		
 	
 	def update(self, deltatime, actions):
 		#Automatic training
+		'''
 		if self.mode==3 and self.training_step>=0:
-			self.selected_alg=1
+			self.selected_alg=2
 			self.position=4
 			self.positionx=1
 			if self.training_step >= len(self.combinations):
@@ -79,11 +80,14 @@ class Choose(State):
 				self.pieces = self.combinations[self.training_step]
 				self.training_step+=1
 			print("step:", self.training_step, ",	size: ", self.size[self.selected_size], ",	pieces: ",  self.pieces)
-		
+		'''
 		movey = actions["Down"] - actions["Up"] #recebe o valor do movimento vertical
 		movex = actions["Right"] - actions["Left"] #recebe o valor do movimento horizontal
 		if self.time==0:
 			self.position = (self.position + movey) % 5 # realiza o movimento dentre as opções
+			if self.position==3:
+				if movey>0:self.position=4
+				else:self.position=2
 			if self.position==0:#Peças
 				self.positionx = (self.positionx + movex) % len(self.recs_pieces) # realiza o movimento dentre as opções horizontais
 			elif self.position==1:#larguras do campo
@@ -213,6 +217,13 @@ class Choose(State):
 			else:
 				self.game.text(canvas,self.option[i], 16, pygame.Color("black"), w*(0.25+0.25*(i-3)), h*(0.75))
 		
+		if self.selected_alg>=0:#						description
+			for i in range(len(self.option_description[self.selected_alg])):
+				self.game.text(canvas, self.option_description[self.selected_alg][i], 16, pygame.Color("white"), w*(0.50), h*(0.70+0.05*(i)))
+			
+		for i in range(len(self.warnings)):#						warnings
+			self.game.text(canvas, self.warnings[i], 24, pygame.Color("red"), w*(0.50+0.26*((i))), h*(0.80))
+		
 		for i in range(2):#						controle
 			if self.position==4 and self.positionx==i:
 				pygame.draw.rect(canvas, pygame.Color("aliceblue"), self.recs_cont[i],  0, int(h/50))
@@ -236,7 +247,10 @@ class Choose(State):
 							4:"Pentomino"}
 			self.option = {0:"1 - Q(Height mean, piece, 3 actions)",
 							1:"2 - Q(Height mean, piece, 3 actions)",
-							2:"3 - StackStack and Score"}
+							2:"3 - Stack and Score"}
+			self.option_description = {0:["Q Learning trained with the following action heuristics:","minimize height, minimize risks and maximize lines"],
+								1:["Q Learning trained with the following action heuristics:","TAI, AAINT, TNPB e stackAndAttack"],
+								2:["Algorithm focused on stacking pieces without making holes with the aim of obtaining a higher score"]}
 			self.control = {0:"Return",
 							1:"Confirm"}
 			self.errors = {0:"Selecione pelo menos um conjunto de peças",# erro nº1
@@ -253,8 +267,11 @@ class Choose(State):
 							3:"Tetraminó",
 							4:"Pentaminó"}
 			self.option = {0:"1 - Q(média das alturas, peças, 3 ações)",
-							1:"2 - Q()",
-							2:"3 - Q()"}
+							1:"2 - Q(média das alturas, peças, 3 ações)",
+							2:"3 - Empilhar e Pontuar"}
+			self.option_description = {0:["Qlearning treinado com as seguintes heuristicas de ações:","minimizar altura, minimizar buracos e maximizar linhas"],
+									1:["Qlearning treinado com as seguintes heuristicas de ações:", "TAI, AAINT, TNPB e 'Empilhar e Pontuar'"],
+									2:["Algoritmo focado em empilhar peças sem fazer buracos com o objetivo de obter maior pontuação"]}
 			self.control = {0:"Retornar",
 							1:"Confirmar"}
 			self.errors = {0:"Selecione pelo menos um conjunto de peças",# erro nº1

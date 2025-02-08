@@ -7,6 +7,9 @@ class Q_learning():
 		self.actions = {"Left": False, "Right": False, "Soft_Drop": False,"Hard_Drop": False,
 			"Rotate_Right": False, "Rotate_Left": False, "Hold": False } # dicionario com as ações do jogo
 		
+		self.q_values = np.zeros((2, 2, 2))
+		self.all_actions = [ 0, 0, 0, 0]
+		
 		#parametros de treinamento
 		self.epsilon = 0.0 #the percentage of time when we should take the best action (instead of a random action)
 		self.discount_factor = 0.9 #	𝛾(gamma)	discount factor for future rewards
